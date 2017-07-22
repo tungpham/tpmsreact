@@ -13,7 +13,7 @@
     "faker": "^4.1.0",
     "gh-pages": "^0.12.0",
     "halogen": "^0.2.0",
-    "immutable": "^4.0.0",
+    "immutable": "^3.8.1",
     "make-error": "^1.2.3",
     "moment": "^2.18.1",
     "nodemon": "^1.11.0",
