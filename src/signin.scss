@@ -1,0 +1,108 @@
+.signin-container {
+    @include make-container();
+
+    height: 100%;
+    width: 100%;
+
+
+    @include media-breakpoint-down(md) {
+        padding: 0px;
+    }
+
+    .signin-block {
+        position: relative;
+        display: flex;
+        background-color: $card-bg;
+        border: $card-border-width solid $card-border-color;
+        align-content: center;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 45em;
+
+        @include border-radius($card-border-radius);
+        @include make-row();
+
+        margin: 0px auto !important;
+
+        @include media-breakpoint-down(md) {
+            border: none;
+            width: 100%;
+            position: relative;
+            top: auto;
+            transform: none;
+
+            .vertical-divider {
+                display: none;
+            }
+        }
+    }
+
+    .signin-buttons {
+        padding: 2em 3em;
+
+        .btn {
+            margin-top: 1em;
+            margin-bottom: 1em;
+            text-align: center;
+
+            .fa {
+                float: left;
+                margin-right: 0.3em;
+                line-height: 1.3em;
+            }
+        }
+    }
+
+    .signin-form {
+        padding: 2em 3em;
+        height: 100%;
+
+        .signin-remember {
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            color: rgb(62, 99, 115);
+            background-color: rgb(234, 234, 234);
+            padding: 1em;
+            border: none;
+        }
+
+        .btn {
+            background-color: $button-red-color;
+            border: none;
+            text-transform: uppercase;
+            padding: 1em;
+        }
+
+        .signin-form-buttons {
+            margin-top: 1em !important;
+            margin-bottom: 1em !important;
+            align-items: center;
+            height: auto;
+
+            .col-6 { height: fit-content; }
+        }
+
+        .links {
+            font-size: 0.8em;
+            text-align: center;
+            
+            a {
+                color: $button-red-color;
+            }
+
+            .highlighted {
+                border-right: 1px solid #ccc;
+            }
+        }
+
+        .errors {
+            font-size: 0.8em;
+        }
+    }
+}

@@ -1,0 +1,545 @@
+swagger: '2.0'
+info:
+  description: |
+    Basic server API implementation for MorePhoneLight
+  version: 1.0.0
+  title: MorePhoneLight
+consumes:
+  - application/json
+produces:
+  - application/json
+# host: petstore.swagger.io
+basePath: /api
+tags:
+- name: numbers
+  description: Numbers endpoints
+- name: chats
+  description: Chats endpoints
+- name: user
+  description: User endpoints
+# schemes:
+# - http
+
+parameters:
+  numberId:
+    name: numberId
+    in: path
+    description: ID of a number
+    required: true
+    type: string
+  fromId:
+    name: fromId
+    in: path
+    description: ID from
+    required: true
+    type: string
+  toId:
+    name: toId
+    in: path
+    description: ID to
+    required: true
+    type: string
+
+paths:
+  /numbers:
+    get:
+      tags:
+      - numbers
+      operationId: getNumbers
+      summary: List of numbers for current user
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: List of numbers
+          schema:
+            type: array
+            items:
+              allOf:
+              - $ref: '#/definitions/Number'
+              - type: object
+                properties:
+                  numberOfUnread:
+                    type: integer
+                    format: int32
+  /number/{numberId}:
+    put:
+      tags:
+      - numbers
+      operationId: editNumberWithId
+      summary: editNumber
+      security:
+      - api_key: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/Number'
+      responses:
+        200:
+          description: Edited number
+          schema:
+            $ref: '#/definitions/Number'
+        404:
+          description: Number with this id does not exists
+    parameters:
+    - $ref: '#/parameters/numberId'
+  /chats/{numberId}:
+    get:
+      tags:
+      - chats
+      operationId: getChats
+      summary: List of chats for current user
+      description: There are included all chats (Voices and Conversations)
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: List of chats 
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Chat'
+    parameters:
+    - $ref: '#/parameters/numberId'
+  /chats/{numberId}/conversation:
+    post:
+      tags:
+      - chats
+      operationId: createConversation
+      summary: begins new conversation
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: conversation started
+    parameters:
+    - $ref: '#/parameters/numberId'
+  /chat/{fromId}/{toId}/voice:
+    get:
+      tags:
+      - chats
+      operationId: getVoice
+      summary: Get voice data
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: Remote user
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '#/definitions/User'
+    parameters:
+    - $ref: '#/parameters/fromId'
+    - $ref: '#/parameters/toId'
+  /chat/{fromId}/{toId}/conversation:
+    get:
+      tags:
+      - chats
+      operationId: getConversation
+      summary: Get chat data
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: User and chat messages
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '#/definitions/User'
+              messages:
+                type: array
+                items:
+                  $ref: '#/definitions/ChatMessage'
+        404:
+          description: Can't chat with this user
+    post:
+      tags:
+      - chats
+      operationId: postMessageInConversation
+      summary: Send message to user
+      security:
+      - api_key: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+          required:
+          - message
+      responses:
+        200:
+          description: Message was posted
+        404:
+          description: Can't chat with this user
+    parameters:
+    - $ref: '#/parameters/fromId'
+    - $ref: '#/parameters/toId'
+  /chat/{fromId}/{toId}/conversation/messages:
+    get:
+      tags:
+      - messages
+      operationId: getConversationMessages
+      summary: Get messages from chat conversation
+      secuirty:
+      - api_key: []
+      responses:
+        200:
+          description: Chat messages
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ChatMessage'
+        404:
+          description: Can't chat with this user
+    parameters:
+    - $ref: '#/parameters/fromId'
+    - $ref: '#/parameters/toId'
+  /statistics/{numberId}:
+    get:
+      tags:
+      - numbers
+      operationId: getStatisticsForNumber
+      summary: Get statistics for number
+      security:
+      - api_key: []
+      responses:
+        200:
+          description: Statistics for number (conversations and voice)
+          schema:
+            $ref: '#/definitions/Statistics'
+    parameters:
+    - $ref: '#/parameters/numberId'
+  /search:
+    post:
+      tags:
+      - numbers
+      operationId: searchNumbers
+      summary: Search in numbers
+      security:
+      - api_key: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/Search'
+      responses:
+        200:
+          description: Found numbers
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Number'
+  /user:
+    put:
+      tags:
+      - user
+      operationId: editUser
+      summary: Edit user
+      security:
+      - api_key: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          allOf:
+          - $ref: '#/definitions/User'
+          - type: object
+            properties:
+              password:
+                type: string
+      responses:
+        200:
+          description: Edited user
+          schema:
+            $ref: '#/definitions/User'
+  /login:
+    post:
+      tags:
+      - user
+      operationId: login
+      summary: User login
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+         $ref: '#/definitions/Auth'
+      responses:
+        200:
+          description: Token and user
+          schema:
+            $ref: '#/definitions/AuthResponse'
+        400:
+          description: Invalid username/password supplied
+  /register:
+    post:
+      tags:
+      - user
+      operationId: Register
+      summary: Register user
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+         $ref: '#/definitions/Auth'
+      responses:
+        200:
+          description: Token and user
+          schema:
+            $ref: '#/definitions/AuthResponse'
+        409:
+          description: User with specified parameters already exists
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  Auth:
+    type: object
+    properties:
+      provider:
+        type: string
+      options:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+    - provider
+  AuthResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+    required:
+    - token
+    - user
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+      avatar:
+        type: string
+      email:
+        type: string
+        format: email
+      phone:
+        type: string
+      name:
+        type: string
+    required:
+      - id
+      - avatar
+      - email
+      - phone
+      - name
+  Number:
+    type: object
+    properties:
+      id:
+        type: string
+      owner:
+        type: string
+        description: Id of the owner
+      number:
+        type: string
+      name:
+        type: string
+      country:
+        type: string
+        description: Country code (lower case)
+      recording:
+        type: boolean
+        description: Is recording enabled
+      notification:
+        type: boolean
+        description: Are notifications enabled
+      smsForwarding:
+        type: object
+        properties:
+          phone:
+            type: string
+          email:
+            type: string
+        required:
+        - phone
+        - email
+      capabilities:
+        type: object
+        properties:
+          sms:
+            type: boolean
+          mms:
+            type: boolean
+          voice:
+            type: boolean
+        required:
+        - sms
+        - mms
+        - voice
+    required:
+    - id
+    - number
+    - country
+    - recording
+    - notification
+    - smsForwarding
+    - capabilities
+  Chat:
+    type: object
+    discriminator: type
+    properties:
+      type:
+        type: string
+      from:
+        $ref: '#/definitions/Number'
+      to:
+        $ref: '#/definitions/Number'
+    required:
+    - type
+    - from
+    - to
+  Conversation:
+    allOf:
+    - $ref: '#/definitions/Chat'
+    - type: object
+      properties:
+        numberOfUnread:
+          type: integer
+          format: int32
+          default: 0
+        latestMessage:
+          $ref: '#/definitions/ChatMessage'
+      required:
+      - numberOfUnread
+      - latestMessage
+  Voice:
+    allOf:
+    - $ref: '#/definitions/Chat'
+    - type: object
+      properties:
+        latestCall:
+          type: object
+          properties:
+            type:
+              type: string
+              default: outgoing
+              enum:
+              - incoming
+              - outgoing
+            date:
+              type: string
+              format: date-time
+          required:
+          - type
+          - date
+      required:
+      - latestCall
+  ChatMessage:
+    type: object
+    properties:
+      from:
+        type: string
+        description: id
+      to:
+        type: string
+        description: id
+      message:
+        type: string
+      date:
+        type: string
+        format: date-time
+    required:
+    - from
+    - to
+    - message
+    - date
+  StatisticsCard:
+    type: object
+    properties:
+      aggregates:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            value:
+              type: integer
+              format: int32
+          required:
+          - name
+          - value
+      data:
+        type: array
+        items:
+          type: object
+          properties:
+            date:
+              type: string
+              format: date-time
+            value:
+              type: integer
+              format: int32
+          required:
+          - date
+          - value
+    required:
+    - aggregates
+    - data
+  Statistics:
+    type: object
+    properties:
+      id:
+        type: string
+        description: id of number for which statistics are
+      balance:
+        type: integer
+        format: int32
+      conversation:
+        $ref: '#/definitions/StatisticsCard'
+      voice:
+        $ref: '#/definitions/StatisticsCard'
+    required:
+    - id
+    - balance
+    - conversation
+    - voice
+  Search:
+    type: object
+    properties:
+      country:
+        type: string
+      number:
+        type: string
+      matchTo:
+        type: string
+      capabilities:
+        type: object
+        properties:
+          sms:
+            type: boolean
+          mms:
+            type: boolean
+          voice:
+            type: boolean
+
+# Added by API Auto Mocking Plugin
+schemes:
+ - https
+ - http
