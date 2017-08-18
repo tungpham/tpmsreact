@@ -11,50 +11,87 @@ import Usage from "./pages/Usage";
 import Search from "./pages/Search";
 import Balance from "./pages/Balance";
 import Container from "./Container";
+import Auth from '../auth/Auth';
+import actions from "../actions";
 
-export const AuthRoute = (() => {
-  const AuthRoute = ({
-    location,
-    authenticated,
-    component: Component,
-    ...rest
-  }) => (
-    <Route
-      {...rest}
-      render={props =>
-        (authenticated
-          ? <Component {...props} />
-          : <Redirect
-              to={{
-                pathname: "/login",
-                state: { from: props.location }
-              }}
-            />)}
-    />
-  );
+import configureStore from "../lib/configureStore";
+import createHistory from "history/createHashHistory";
+import { routerMiddleware } from "react-router-redux";
+const initalState = window.__INITIAL_STATE__;
+const history = createHistory();
+const store = configureStore({
+  initalState,
+  platformMiddleware: [routerMiddleware(history)],
+  platformDeps: { history }
+});
 
-  const enhance = connect(state => ({
-    authenticated: state.user.authenticated,
-    location: state.router
-  }));
+export const getAuthenticatedUser = () => {
 
-  return enhance(AuthRoute);
-})();
+  let auth = new Auth();
+  let authCheck = auth.isAuthenticated();
+
+  authCheck.then((profile) => {
+    console.info('%cProfile information has successfully been retrieved for the current user.','font-size:40px; color:#3CA2D1');
+    console.info(profile);
+    store.dispatch(actions.user.userData.success(profile.clientID, profile));
+  });
+
+  authCheck.catch((err) => {
+    console.error('%cYou have failed to authenticate and have been redirected to the login page.','font-size:40px; color:#CE513B');
+    console.error(err);
+    window.location.href = process.env.AUTH0_REDIRECT_URI+'login';
+  });
+
+};
 
 export const Root = ({ history, store }) => (
   <Redux store={store}>
     <ConnectedRouter history={history}>
       <Container>
         <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
-        <AuthRoute
+        <Route
+          exact
           path="/dashboard/:number?/:type?/:conversation?"
-          component={Dashboard}
+          render={() => {
+              getAuthenticatedUser();
+              return <Dashboard />
+          }}
         />
-        <AuthRoute path="/profile" component={Profile} />
-        <AuthRoute path="/settings/:number?" component={NumberSettings} />
-        <AuthRoute path="/balance/:number" component={Balance} />
-        <AuthRoute path="/usage/:number?/:type?" component={Usage} />
-        <AuthRoute path="/search" component={Search} />
+        <Route
+          path="/profile"
+          render={() => {
+              getAuthenticatedUser();
+              return <Profile />
+          }}
+        />
+        <Route
+          path="/settings/:number?"
+          render={() => {
+              getAuthenticatedUser();
+              return <NumberSettings />
+          }}
+        />
+        <Route
+          path="/balance/:number"
+          render={() => {
+              getAuthenticatedUser();
+              return <Balance />
+          }}
+        />
+        <Route
+          path="/usage/:number?/:type?"
+          render={() => {
+              getAuthenticatedUser();
+              return <Usage />
+          }}
+        />
+        <Route
+          path="/search"
+          render={() => {
+              getAuthenticatedUser();
+              return <Search />
+          }}
+        />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
       </Container>
