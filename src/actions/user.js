@@ -4,6 +4,10 @@ export const signIn = {
   fail: error => ({ error })
 };
 
+export const userData = {
+  set: (token, data) => ({ token, data })
+};
+
 export const signUp = {
   request: (provider, options) => ({ provider, options }),
   success: (token, data) => ({ token, data }),

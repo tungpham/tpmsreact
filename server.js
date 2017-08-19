@@ -6,6 +6,7 @@ var app = swagger("api.yaml");
 var faker = require("faker");
 var express = require("express");
 var path = require("path");
+require('dotenv').config();
 
 app.enable("case sensitive routing");
 app.enable("strict routing");

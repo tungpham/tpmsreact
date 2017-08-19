@@ -1,5 +1,6 @@
 //
 import React from "react";
+import Auth from '../../auth/Auth';
 import {
   Container,
   Row,
@@ -11,11 +12,13 @@ import {
   Label
 } from "reactstrap";
 import { connect } from "react-redux";
-import { compose, withHandlers } from "recompose";
+import { compose, withHandlers, withProps } from "recompose";
 import actions from "../../actions";
 import { email, required } from "../../lib/validators";
 import { reduxForm, Field } from "redux-form/immutable";
 import { NavLink as Link } from "react-router-dom";
+
+let auth = new Auth();
 
 export const SignInButton = (() => {
   const SignInButton = ({ provider, color, text, icon, signIn }) => (
@@ -65,61 +68,32 @@ export const renderCheckField = ({
   </FormGroup>
 );
 
-export const SignIn = ({ signIn, handleSubmit, submitting }) => (
+export const SignIn = ({ signIn, handleSubmit, handleLogin, handleLogout, submitting }) => (
+
   <Container fluid className="signin-container">
     <div className="signin-block row-divided">
-      <Col xs="12" md="6" className="signin-buttons">
-        <SignInButton provider="facebook" text="Facebook" signIn={signIn} />
-        <SignInButton provider="twitter" text="Twitter" signIn={signIn} />
-        <SignInButton provider="google" text="Google" signIn={signIn} />
-      </Col>
-      <div className="vertical-divider">OR</div>
-      <Col xs="12" md="6" className="signin-form">
-        <Form onSubmit={handleSubmit}>
-          <Field
-            name="email"
-            type="email"
-            component={renderField}
-            label="Email"
-            validate={[required, email]}
-          />
-          <Field
-            name="password"
-            type="password"
-            component={renderField}
-            label="Password"
-            validate={required}
-          />
-          <Row className="signin-form-buttons">
-            <Col xs="6">
-              <Field
-                name="rememberMe"
-                className="signin-remember"
-                component={renderCheckField}
-                label="Remember me"
-              />
-            </Col>
-            <Col xs="6">
-              <button
-                type="submit"
-                className="btn btn-block btn-primary"
-                disabled={submitting}
-              >
-                Log in
-              </button>
-            </Col>
-          </Row>
-          <Row className="links">
-            <Col xs="6" className="highlighted">
-              <Link to="/register">
-                Register now
-              </Link>
-            </Col>
-            <Col xs="6">
-              Forgot password?
-            </Col>
-          </Row>
-        </Form>
+      <Col xs="12" md="12" className="signin-form">
+        {
+          auth.isAuthenticated()
+            ?
+            <button
+              type="button"
+              className="btn btn-block btn-primary"
+              disabled={submitting}
+              onClick={handleLogin}
+            >
+              Log in / Sign up
+            </button>
+            :
+            <button
+              type="button"
+              className="btn btn-block btn-primary"
+              disabled={submitting}
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+        }
       </Col>
     </div>
   </Container>
@@ -131,6 +105,16 @@ export const enhance = compose(
     onSubmit: ({ signIn }) => values => {
       console.log(values);
       signIn("password", values.toJS());
+    },
+
+    handleLogin: () => () => {
+      const auth = new Auth();
+      auth.login();
+    },
+
+    handleLogout: () => () => {
+      const auth = new Auth();
+      auth.logout();
     }
   }),
   reduxForm({ form: "signIn" })

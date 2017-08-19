@@ -208,7 +208,18 @@ module.exports = {
     // to restart the development server for Webpack to discover it. This plugin
     // makes the discovery automatic so you don't have to restart.
     // See https://github.com/facebookincubator/create-react-app/issues/186
-    new WatchMissingNodeModulesPlugin(paths.appNodeModules)
+    new WatchMissingNodeModulesPlugin(paths.appNodeModules),
+    
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        API_URL: JSON.stringify(process.env.API_URL),
+        AUTH0_DOMAIN: JSON.stringify(process.env.AUTH0_DOMAIN),
+        AUTH0_CLIENT_ID: JSON.stringify(process.env.AUTH0_CLIENT_ID),
+        AUTH0_REDIRECT_URI: JSON.stringify(process.env.AUTH0_REDIRECT_URI),
+        AUTH0_AUDIENCE: JSON.stringify(process.env.AUTH0_AUDIENCE),
+      },
+    }),
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
