@@ -1,13 +1,12 @@
-import React from "react";
-import { Container, Row, Col, Button, Form } from "reactstrap";
-import NumbersList from "../../components/NumbersList";
-import { withHandlers, compose } from "recompose";
-import actions from "../../actions";
-import { connect } from "react-redux";
-import * as selectors from "../../selectors/data";
-import { reduxForm, Field } from "redux-form/immutable";
-import { required } from "../../lib/validators";
-import { renderField, renderCheckField } from "./SignIn.js";
+import React from 'react';
+import { Container, Row, Col, Button, Form } from 'reactstrap';
+import NumbersList from '../../components/NumbersList';
+import { withHandlers, compose } from 'recompose';
+import actions from '../../actions';
+import { connect } from 'react-redux';
+import * as selectors from '../../selectors/data';
+import { reduxForm, Field } from 'redux-form/immutable';
+import { renderField, renderCheckField } from './SignIn.js';
 
 export const enhanceForm = compose(
   connect((state, { number }) => {
@@ -61,7 +60,6 @@ export const NumberForm = enhanceForm(({ data, handleSubmit, submitting }) => (
             label="Friendly name"
             showLabel
             component={renderField}
-            validate={[required]}
           />
         </Col>
         <Col md="4">

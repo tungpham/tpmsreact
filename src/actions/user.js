@@ -1,25 +1,15 @@
-export const signIn = {
-  request: (provider, options) => ({ provider, options }),
-  success: (token, data) => ({ token, data }),
-  fail: error => ({ error })
-};
+import * as types from '../constants';
 
-export const userData = {
-  set: (token, data) => ({ token, data })
-};
+export function loggedIn(payload) {
+  return {
+    type: types.LOGGED_IN,
+    payload
+  };
+}
 
-export const signUp = {
-  request: (provider, options) => ({ provider, options }),
-  success: (token, data) => ({ token, data }),
-  fail: error => ({ error })
-};
-
-export const signOut = {
-  request: () => ({})
-};
-
-export const edit = {
-  request: user => ({ user }),
-  success: user => ({ user }),
-  fail: error => ({ error })
-};
+export function loggedOut(payload) {
+  return {
+    type: types.LOGGED_OUT,
+    payload
+  };
+}

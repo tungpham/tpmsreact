@@ -6,7 +6,6 @@ import {
   Button,
   FormGroup,
   Label,
-  Input,
   Form,
   UncontrolledDropdown,
   DropdownToggle,
@@ -20,21 +19,17 @@ import {
   branch,
   renderComponent
 } from "recompose";
-import actions from "../../actions";
 import * as selectors from "../../selectors/data";
-import { NavLink as Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { reduxForm, Field } from "redux-form/immutable";
 import { List } from "immutable";
 import Spinner from "halogen/BounceLoader";
 
-//export const Field = { label };
 
 export const enhanceForm = compose(
   connect(() => ({})),
   withHandlers({
-    onSubmit: ({ dispatch }) => values =>
-      dispatch(actions.search.request(values.set("_", "_").toJS()))
+    onSubmit: ({ dispatch }) => values => {}
   }),
   reduxForm({ form: "search" })
 );
@@ -42,7 +37,7 @@ export const enhanceForm = compose(
 const DropdownInput = ({ value, items, onChange, label }) => (
   <UncontrolledDropdown>
     <DropdownToggle caret block>
-      {value ? (items.find(x => x.value == value) || {}).title : label}
+      {value ? (items.find(x => x.value === value) || {}).title : label}
     </DropdownToggle>
     <DropdownMenu>
       {items.map(item => (

@@ -1,23 +1,17 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import Root from "./containers/Root";
-import configureStore from "./lib/configureStore";
-import createHistory from "history/createHashHistory";
-import { routerMiddleware } from "react-router-redux";
-import { AppContainer } from "react-hot-loader";
-import actions from "./actions";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Root from './containers/Root';
+import configureStore from './store';
+import createHistory from 'history/createBrowserHistory';
+import { AppContainer } from 'react-hot-loader';
 
-import "./index.scss";
+import './index.scss';
 
-const initalState = window.__INITIAL_STATE__;
+const initialState = window.__INITIAL_STATE__;
 
 const history = createHistory();
 
-const store = configureStore({
-  initalState,
-  platformMiddleware: [routerMiddleware(history)],
-  platformDeps: { history }
-});
+const store = configureStore(initialState, history);
 
 ReactDOM.render(
   <AppContainer>
@@ -25,8 +19,6 @@ ReactDOM.render(
   </AppContainer>,
   document.getElementById("root")
 );
-
-store.dispatch(actions.app.started());
 
 // Hot Module Replacement API
 if (module.hot) {

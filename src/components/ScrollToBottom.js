@@ -46,7 +46,7 @@ export default class ScrollToBottom extends Component {
   render() {
     const { className, children } = this.props;
     const style = {
-      overflowY: "scroll",
+      overflowY: "auto",
       ...this.props.style
     };
     return (

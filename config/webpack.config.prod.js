@@ -213,7 +213,6 @@ module.exports = {
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
     // Otherwise React will be compiled in the very slow development mode.
-    new webpack.DefinePlugin(env.stringified),
     // This helps ensure the builds are consistent if source hasn't changed:
     new webpack.optimize.OccurrenceOrderPlugin(),
     // Try to dedupe duplicated modules, if any:
@@ -232,6 +231,23 @@ module.exports = {
         screw_ie8: true
       }
     }),
+
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        API_URL: JSON.stringify(process.env.API_URL),
+        AUTH0_DOMAIN: JSON.stringify(process.env.AUTH0_DOMAIN),
+        AUTH0_CLIENT_ID: JSON.stringify(process.env.AUTH0_CLIENT_ID),
+        AUTH0_REDIRECT_URI: JSON.stringify(process.env.AUTH0_REDIRECT_URI),
+        AUTH0_AUDIENCE: JSON.stringify(process.env.AUTH0_AUDIENCE),
+        AUTH0_API_AUDIENCE: JSON.stringify(process.env.AUTH0_API_AUDIENCE),
+        AUTH0_API_GRANT_TYPE: JSON.stringify(process.env.AUTH0_API_GRANT_TYPE),
+        AUTH0_API_CLIENT_ID: JSON.stringify(process.env.AUTH0_API_CLIENT_ID),
+        AUTH0_API_CLIENT_SECRET: JSON.stringify(process.env.AUTH0_API_CLIENT_SECRET),
+        END_POINT_URL: JSON.stringify(process.env.END_POINT_URL)
+      },
+    }),
+
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin(cssFilename),
     // Generate a manifest file which contains a mapping of all asset filenames

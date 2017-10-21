@@ -38,10 +38,10 @@ module.exports = {
     // Note: instead of the default WebpackDevServer client, we use a custom one
     // to bring better experience for Create React App users. You can replace
     // the line below with these two lines if you prefer the stock client:
-    // require.resolve('webpack-dev-server/client') + '?/',
+    // require.resolve('webpack-dev-server/client') + '?reload=true',
     // require.resolve('webpack/hot/dev-server'),
     "react-hot-loader/patch",
-    require.resolve("react-dev-utils/webpackHotDevClient"),
+    'webpack-hot-middleware/client?reload=true',
     // We ship a few polyfills by default:
     require.resolve("./polyfills"),
     // Finally, this is your app's code:
@@ -218,6 +218,11 @@ module.exports = {
         AUTH0_CLIENT_ID: JSON.stringify(process.env.AUTH0_CLIENT_ID),
         AUTH0_REDIRECT_URI: JSON.stringify(process.env.AUTH0_REDIRECT_URI),
         AUTH0_AUDIENCE: JSON.stringify(process.env.AUTH0_AUDIENCE),
+        AUTH0_API_AUDIENCE: JSON.stringify(process.env.AUTH0_API_AUDIENCE),
+        AUTH0_API_GRANT_TYPE: JSON.stringify(process.env.AUTH0_API_GRANT_TYPE),
+        AUTH0_API_CLIENT_ID: JSON.stringify(process.env.AUTH0_API_CLIENT_ID),
+        AUTH0_API_CLIENT_SECRET: JSON.stringify(process.env.AUTH0_API_CLIENT_SECRET),
+        END_POINT_URL: JSON.stringify(process.env.END_POINT_URL)
       },
     }),
   ],

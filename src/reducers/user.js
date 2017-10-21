@@ -1,37 +1,30 @@
-import actions from "../actions";
-import { handleActions } from "redux-actions";
-import { fromJS, Record } from "immutable";
+import { fromJS } from 'immutable';
+import * as types from '../constants';
 
-const InitialState = Record({
+const initialState = fromJS({
   authenticated: false,
   error: null,
-  token: "",
-  data: null
+  token: null,
+  profile: { }
 });
+function UserReducer(state = initialState, action) {
+  switch (action.type) {
 
-const signIn = (state, action) => {
+    case types.LOGGED_IN:
+      return state
+        .set('profile', fromJS(action.payload.profile))
+        .set('token', action.payload.token)
+        .set('authenticated', true);
 
-  state
-    .set("token", action.payload.token)
-    .set("data", fromJS(action.payload.data))
-    .set("authenticated", true);
-};
+    case types.LOGGED_OUT:
+      return state
+        .set('profile', fromJS({}))
+        .set('token', '')
+        .set('authenticated', false);
 
-const setUserData = (state, action) => {
-  console.log('SETTING USER TO LOGGED IN');
-  state
-    .set("token", action.payload.token)
-    .set("data", fromJS(action.payload.data))
-    .set("authenticated", true);
-};
+    default:
+      return state;
+  }
+}
 
-
-export default handleActions(
-  { 
-    [actions.user.signIn.success]: signIn,
-    [actions.user.userData.set]: setUserData,
-    [actions.user.edit.success]: (state, { payload: { user } }) =>
-      state.set("data", fromJS(user))
-  },
-  InitialState()
-);
+export default UserReducer;

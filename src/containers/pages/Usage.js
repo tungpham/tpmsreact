@@ -1,24 +1,17 @@
-import React from "react";
-import { Container, Row, Col } from "reactstrap";
-import NumbersList from "../../components/NumbersList";
-import { withHandlers, compose } from "recompose";
-import actions from "../../actions";
-import { connect } from "react-redux";
-import * as selectors from "../../selectors/data";
-import fetch from "../../lib/fetch";
-import { NavLink as Link } from "react-router-dom";
-import { List } from "immutable";
-import moment from "moment";
+import React from 'react';
+import { Container, Row, Col } from 'reactstrap';
+import NumbersList from '../../components/NumbersList';
+import { withHandlers, compose } from 'recompose';
+import { connect } from 'react-redux';
+import * as selectors from '../../selectors/data';
+import { NavLink as Link } from 'react-router-dom';
+import { List } from 'immutable';
+import moment from 'moment';
 
 export const enhancePane = compose(
   connect((state, { number }) => ({
     state: selectors.getDataState(state, `number.${number}.statistics`)
   })),
-  fetch(
-    ({ dispatch, number }) => dispatch(actions.statistics.load.request(number)),
-    ({ state }) => state.loaded && !state.loading,
-    (p, np) => p.number !== np.number
-  )
 );
 
 export const UsagePane = enhancePane(({ state, number, type }) => (

@@ -1,6 +1,5 @@
-import React from "react";
+import React from 'react';
 import {
-  Container,
   Row,
   Col,
   Button,
@@ -10,7 +9,7 @@ import {
   Form,
   InputGroup,
   InputGroupAddon
-} from "reactstrap";
+} from 'reactstrap';
 import {
   withState,
   compose,
@@ -18,11 +17,10 @@ import {
   withProps,
   withPropsOnChange,
   withHandlers
-} from "recompose";
-import { reduxForm, Field } from "redux-form/immutable";
-import { email, required, length } from "../../lib/validators";
-import MaskedInput from "react-maskedinput";
-import creditCardType from "credit-card-type";
+} from 'recompose';
+import { reduxForm, Field } from 'redux-form/immutable';
+import MaskedInput from 'react-maskedinput';
+import creditCardType from 'credit-card-type';
 
 export const renderField = defaultProps({
   component: Input
@@ -99,23 +97,23 @@ export const getType = value => {
   return null;
 };
 
-const creditCardValidate = value => {
-  if (!value) return undefined;
-
-  const t = value.replace(/ /g, "");
-
-  const types = creditCardType(t);
-
-  if (types.length > 0 && allowedTypes.indexOf(types[0].type) !== -1) {
-    const type = types[0];
-
-    if (!new RegExp(type.exactPattern).test(t)) return "Invalid credit card";
-  } else {
-    return "Invalid credit card provider";
-  }
-
-  return undefined;
-};
+// const creditCardValidate = value => {
+//   if (!value) return undefined;
+//
+//   const t = value.replace(/ /g, "");
+//
+//   const types = creditCardType(t);
+//
+//   if (types.length > 0 && allowedTypes.indexOf(types[0].type) !== -1) {
+//     const type = types[0];
+//
+//     if (!new RegExp(type.exactPattern).test(t)) return "Invalid credit card";
+//   } else {
+//     return "Invalid credit card provider";
+//   }
+//
+//   return undefined;
+// };
 
 export const CreditCardInput = ({ value, ...props }) => {
   const type = getType(value);
@@ -157,12 +155,11 @@ export const CreditCardForm = enhanceForm(({ handleSubmit, submitting }) => (
       name="text"
       type="name"
       label="Cardholder name"
-      validate={required}
     />
     <CreditCardField
       name="card"
       label="Card number"
-      validate={[required, creditCardValidate]}
+      // validate={[required, creditCardValidate]}
     />
     <Row>
       <Col xs="3">
@@ -171,7 +168,7 @@ export const CreditCardForm = enhanceForm(({ handleSubmit, submitting }) => (
           name="month"
           label="Month"
           placeholder="mm"
-          validate={[required, length(2)]}
+          // validate={[required, length(2)]}
         />
       </Col>
       <Col xs="3">
@@ -180,7 +177,7 @@ export const CreditCardForm = enhanceForm(({ handleSubmit, submitting }) => (
           name="year"
           label="Year"
           placeholder="yyyy"
-          validate={[required, length(4)]}
+          // validate={[required, length(4)]}
         />
       </Col>
       <Col xs="6">
@@ -189,7 +186,7 @@ export const CreditCardForm = enhanceForm(({ handleSubmit, submitting }) => (
           name="cvv"
           label="CVV"
           placeholder=""
-          validate={[required, length(3)]}
+          // validate={[required, length(3)]}
         />
       </Col>
     </Row>

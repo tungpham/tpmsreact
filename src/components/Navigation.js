@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Navbar,
   NavbarToggler,
@@ -11,84 +11,95 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem
-} from "reactstrap";
-import { NavLink as Link } from "react-router-dom";
-import { connect } from "react-redux";
-import actions from "../actions";
-import { compose, withState, withHandlers } from "recompose";
-import { withRouter } from "react-router";
+} from 'reactstrap';
+import { createStructuredSelector } from 'reselect';
+import { NavLink as Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { makeSelectUserProfile, makeSelectAuthenticated } from '../selectors/user';
+import { loggedOut } from '../actions/user';
+import Auth from '../auth/Auth';
 
-const Navigation = ({
-  toggleNavigation,
-  toggleProfile,
-  authenticated,
-  user,
-  menuShown,
-  isOpenProfile
-}) => (
-  <Navbar inverse toggleable light color="primary" className="fixed-top">
-    {authenticated && <NavbarToggler right onClick={toggleNavigation} />}
-    <NavbarBrand to="/" tag={Link}>MorePhone</NavbarBrand>
-    {authenticated &&
-      <Collapse isOpen={menuShown} navbar>
-        <Nav className="mr-auto" navbar>
-          <NavItem>
-            <NavLink to="/dashboard" tag={Link} activeClassName="active">
-              Dashboard
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/usage" tag={Link} activeClassName="active">
-              Usage
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink to="/settings" tag={Link} activeClassName="active">
-              Settings
-            </NavLink>
-          </NavItem>
-        </Nav>
-        <Nav navbar>
-          <NavDropdown isOpen={isOpenProfile} toggle={toggleProfile}>
-            <DropdownToggle nav>
-              {user.get("name")}
-              <img
-                src={user.get("avatar")}
-                className="avatar rounded-circle"
-                alt="avatar"
-              />
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem to="/profile" tag={Link}>
-                Profile
-              </DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Logout</DropdownItem>
-            </DropdownMenu>
-          </NavDropdown>
-        </Nav>
-      </Collapse>}
-  </Navbar>
-);
+export class Navigation extends React.PureComponent {
 
-export const Component = Navigation;
-export const enhance = compose(
-  withState("isOpenProfile", "setIsOpenProfile", false),
-  withHandlers({
-    toggleProfile: ({ isOpenProfile, setIsOpenProfile }) => () =>
-      setIsOpenProfile(!isOpenProfile)
-  }),
-  withRouter,
-  connect(
-    state => ({
-      authenticated: state.user.authenticated,
-      user: state.user.data,
-      menuShown: state.app.menuShown
-    }),
-    {
-      toggleNavigation: actions.app.toggleMenu
-    }
-  )
-);
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: false,
+    };
+    this.openDropDown = this.openDropDown.bind(this);
+    this.logout = this.logout.bind(this);
+  }
 
-export default enhance(Component);
+  openDropDown() {
+    this.setState({ ...this.state, isOpen: !this.state.isOpen });
+  }
+
+  logout() {
+    this.props.dispatch(loggedOut());
+    Auth.logout();
+    this.props.history.push('/login');
+  }
+
+  render() {
+    return (
+      <Navbar inverse toggleable light color="primary">
+        {this.props.authenticated && <NavbarToggler right />}
+        <NavbarBrand to="/" tag={Link}>MorePhone</NavbarBrand>
+        {this.props.authenticated &&
+        <Collapse isOpen={true} navbar>
+          <Nav className="mr-auto" navbar>
+            <NavItem>
+              <NavLink to="/dashboard" tag={Link} activeClassName="active">
+                Dashboard
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/usage" tag={Link} activeClassName="active">
+                Usage
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/settings" tag={Link} activeClassName="active">
+                Settings
+              </NavLink>
+            </NavItem>
+          </Nav>
+          <Nav navbar>
+            <NavDropdown isOpen={this.state.isOpen} toggle={this.openDropDown}>
+              <DropdownToggle nav>
+                {this.props.profile.name}
+                <img
+                  src={this.props.profile.picture}
+                  className="avatar rounded-circle"
+                  alt="avatar"
+                />
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem to="/profile" tag={Link}>
+                  Profile
+                </DropdownItem>
+                <DropdownItem divider />
+                <DropdownItem onClick={this.logout}>Logout</DropdownItem>
+              </DropdownMenu>
+            </NavDropdown>
+          </Nav>
+        </Collapse>}
+      </Navbar>
+    )
+  }
+}
+
+
+const mapStateToProps = createStructuredSelector({
+  authenticated: makeSelectAuthenticated(),
+  profile: makeSelectUserProfile(),
+});
+
+function mapDispatchToProps(dispatch) {
+  return {
+    dispatch,
+  };
+}
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Navigation));
+
+

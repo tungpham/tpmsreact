@@ -1,102 +1,113 @@
-import React from "react";
-import { Provider as Redux, connect } from "react-redux";
-import { Route, Redirect } from "react-router";
-import { ConnectedRouter } from "react-router-redux";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/SignIn";
-import Register from "./pages/SignUp";
-import Profile from "./pages/Profile";
-import NumberSettings from "./pages/NumberSettings";
-import Usage from "./pages/Usage";
-import Search from "./pages/Search";
-import Balance from "./pages/Balance";
-import Container from "./Container";
+import React from 'react';
+import { Provider as Redux } from 'react-redux';
+import { Route, Redirect } from 'react-router-dom';
+import { ConnectedRouter } from 'react-router-redux';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/SignIn';
+import Profile from './pages/Profile';
+import NumberSettings from './pages/NumberSettings';
+import Usage from './pages/Usage';
+import OAuthCallback from './pages/OAuthCallback';
+import Search from './pages/Search';
+import Balance from './pages/Balance';
+import Container from './Container';
 import Auth from '../auth/Auth';
-import actions from "../actions";
+import { loggedIn, loggedOut } from '../actions/user';
+import runSagas from '../sagas';
 
-import configureStore from "../lib/configureStore";
-import createHistory from "history/createHashHistory";
-import { routerMiddleware } from "react-router-redux";
-const initalState = window.__INITIAL_STATE__;
-const history = createHistory();
-const store = configureStore({
-  initalState,
-  platformMiddleware: [routerMiddleware(history)],
-  platformDeps: { history }
-});
+const auth = new Auth();
 
-export const getAuthenticatedUser = () => {
 
-  let auth = new Auth();
-  let authCheck = auth.isAuthenticated();
+export const Root = ({ history, store }) => {
 
-  authCheck.then((profile) => {
-    console.info('%cProfile information has successfully been retrieved for the current user.','font-size:40px; color:#3CA2D1');
-    console.info(profile);
-    store.dispatch(actions.user.userData.success(profile.clientID, profile));
-  });
+  runSagas(store);
 
-  authCheck.catch((err) => {
-    console.error('%cYou have failed to authenticate and have been redirected to the login page.','font-size:40px; color:#CE513B');
-    console.error(err);
-    window.location.href = process.env.AUTH0_REDIRECT_URI+'login';
-  });
+  const event = new CustomEvent('appLoaded', { });
 
-};
+  if (window.location.pathname === '/callback/oauth') {
+    setTimeout(() => {
+      document.dispatchEvent(event);
+    }, 500);
+  } else {
+    auth.getAuthFromAuthO(auth => {
+      if (auth) {
+        store.dispatch(loggedIn({ profile: auth }));
+      } else {
+        history.push('/login');
+        store.dispatch(loggedOut());
+      }
+      setTimeout(() => {
+        document.dispatchEvent(event);
+      }, 500);
+    });
+  }
 
-export const Root = ({ history, store }) => (
-  <Redux store={store}>
-    <ConnectedRouter history={history}>
-      <Container>
-        <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
-        <Route
-          exact
-          path="/dashboard/:number?/:type?/:conversation?"
-          render={() => {
-              getAuthenticatedUser();
+  return (
+    <Redux store={store}>
+      <ConnectedRouter history={history}>
+        <Container>
+          <Route exact path="/" render={() => <Redirect to={'/dashboard'} />} />
+          <Route
+            exact
+            path="/dashboard/:number?/:type?/:conversation?"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <Dashboard />
-          }}
-        />
-        <Route
-          path="/profile"
-          render={() => {
-              getAuthenticatedUser();
+            }}
+          />
+          <Route
+            path="/profile"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <Profile />
-          }}
-        />
-        <Route
-          path="/settings/:number?"
-          render={() => {
-              getAuthenticatedUser();
+            }}
+          />
+          <Route
+            path="/settings/:number?"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <NumberSettings />
-          }}
-        />
-        <Route
-          path="/balance/:number"
-          render={() => {
-              getAuthenticatedUser();
+            }}
+          />
+          <Route
+            path="/balance/:number"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <Balance />
-          }}
-        />
-        <Route
-          path="/usage/:number?/:type?"
-          render={() => {
-              getAuthenticatedUser();
+            }}
+          />
+          <Route
+            path="/usage/:number?/:type?"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <Usage />
-          }}
-        />
-        <Route
-          path="/search"
-          render={() => {
-              getAuthenticatedUser();
+            }}
+          />
+          <Route
+            path="/search"
+            render={() => {
+              if (!Auth.isAuthenticated()) {
+                return <Redirect to={'/login'} />
+              }
               return <Search />
-          }}
-        />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-      </Container>
-    </ConnectedRouter>
-  </Redux>
-);
+            }}
+          />
+          <Route path="/login" component={Login} />
+          <Route exact path="/callback/oauth" component={OAuthCallback} />
+        </Container>
+      </ConnectedRouter>
+    </Redux>
+  )
+};
 
 export default Root;
