@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
+const express = require('express');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 
@@ -35,7 +36,8 @@ module.exports = {
       });
     });
   },
-  prod(app, { outputPath }) {
+  prod(app, { outputPath, publicPath }) {
+    app.use(publicPath, express.static(outputPath));
     app.get('*', (req, res) => {
       fs.readFile(path.join(outputPath, 'index.html'), (err, file) => {
         if (err) {

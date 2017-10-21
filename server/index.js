@@ -92,5 +92,5 @@ if (isProd) {
 
 
 app.listen(3002, function () {
-  console.log('Example app listening on port 3002!')
+  console.log('TPMS listening on port 3002!')
 });
