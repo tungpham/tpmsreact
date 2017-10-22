@@ -30,12 +30,10 @@ export class CallControl extends React.PureComponent {
   }
 
   componentWillReceiveProps(newProps) {
-    const self = this;
-
-    if (newProps.callCenter.calling && !this.props.callCenter.calling && this.props.auth) {
+    if(newProps.auth.user && !this.props.auth.user) {
       Fetcher.getCallToken(
-        this.props.auth.userMetadata.sid,
-        this.props.auth.userMetadata.auth_token
+        newProps.auth.userMetadata.sid,
+        newProps.auth.userMetadata.auth_token
       ).then(response => {
         Twilio.Device.setup(response.token);
       }).catch(e => {
@@ -52,9 +50,14 @@ export class CallControl extends React.PureComponent {
       });
       Twilio.Device.ready(function() {
         self.log = 'Connected';
-        Twilio.Device.connect({ number: self.props.callCenter.to });
-        self.setState({ log: 'Calling ' + self.props.callCenter.to, onPhone: true })
       });
+    }
+
+    const self = this;
+
+    if (newProps.callCenter.calling && !this.props.callCenter.calling && this.props.auth) {
+      Twilio.Device.connect({ number: newProps.callCenter.to });
+      self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true })
     }
   }
 
@@ -81,7 +84,7 @@ export class CallControl extends React.PureComponent {
   render() {
     return (
       <div>
-        <Modal isOpen={this.props.callCenter.calling} modalClassName="call_center__container">
+        <Modal isOpen={this.props.callCenter.calling} modalClassName="show">
           <ModalHeader toggle={this.closeCall}>{this.state.log}</ModalHeader>
           <ModalBody>
             <div className="row">
