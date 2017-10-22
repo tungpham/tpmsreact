@@ -1,6 +1,6 @@
 /* eslint no-undef: 0 */
 import React from 'react';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import Modal from 'antd/lib/modal';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { makeSelectUserProfile } from '../selectors/user';
@@ -84,26 +84,23 @@ export class CallControl extends React.PureComponent {
   render() {
     return (
       <div>
-        <Modal isOpen={this.props.callCenter.calling} modalClassName="show">
-          <ModalHeader toggle={this.closeCall}>{this.state.log}</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="controls col-md-12 text-center dialpad">
-                { this.state.onPhone ? <Numbers onClick={this.sendDigit.bind(this)} /> : null }
-              </div>
+        <Modal footer={''} title={this.state.log} visible={this.props.callCenter.calling} closable={true} onCancel={this.closeCall}>
+          <div className="row">
+            <div className="controls col-md-12 text-center dialpad">
+              { this.state.onPhone ? <Numbers onClick={this.sendDigit.bind(this)} /> : null }
             </div>
-            <div className="row">
-              <div className="controls col-md-12 text-center">
-                { this.state.onPhone ? <MuteButton handleOnClick={this.handleToggleMute.bind(this)} muted={this.state.muted} /> : null }
-                <button 
-                  className="btn btn-block btn-danger call_center__container__btn--end-call" 
-                  onClick={this.handleToggleCall.bind(this)}
-                >
-                  <i className="fa fa-phone fa-2x" />
-                  </button>
-              </div>
+          </div>
+          <div className="row">
+            <div className="controls col-md-12 text-center">
+              { this.state.onPhone ? <MuteButton handleOnClick={this.handleToggleMute.bind(this)} muted={this.state.muted} /> : null }
+              <button
+                className="btn btn-block btn-danger call_center__container__btn--end-call"
+                onClick={this.handleToggleCall.bind(this)}
+              >
+                <i className="fa fa-phone fa-2x" />
+              </button>
             </div>
-          </ModalBody>
+          </div>
         </Modal>
       </div>
     );
