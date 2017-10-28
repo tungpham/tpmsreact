@@ -28,6 +28,10 @@ app.use('/stream/without-parser', (req, res, next) => {
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.get('.well-known/acme-challenge/:code', (req, res) => {
+  res.send(req.params.code);
+});
+
 app.use('/stream', (req, res, next) => {
   request({
     url: req.body.url,
