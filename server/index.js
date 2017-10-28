@@ -5,6 +5,8 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const twilio = require('twilio');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 const middleware = require('./middleware');
 const ClientCapability = twilio.jwt.ClientCapability;
 const VoiceResponse = twilio.twiml.VoiceResponse;
@@ -27,10 +29,6 @@ app.use('/stream/without-parser', (req, res, next) => {
 });
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
-app.get('.well-known/acme-challenge/:code', (req, res) => {
-  res.send(req.params.code);
-});
 
 app.use('/stream', (req, res, next) => {
   request({
@@ -105,7 +103,22 @@ if (isProd) {
   middleware.dev(app, webpackConfig);
 }
 
+if (isProd) {
+  const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/tpmsreact.uptind.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/tpmsreact.uptind.com/cert.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/tpmsreact.uptind.com/chain.pem'),
+  };
 
-app.listen(3002, function () {
-  console.log('TPMS listening on port 3002!')
-});
+  const httpsServer = https.createServer(options, app);
+
+  httpsServer.listen(3002, '0.0.0.0', () => {
+    console.info('==> 🌎  API is running on port %s', app.get('port'), app.get('env'));
+  });
+} else {
+  app.listen(3002, function () {
+    console.log('TPMS listening on port 3002!')
+  });
+}
+
+
