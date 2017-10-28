@@ -7,6 +7,7 @@ const twilio = require('twilio');
 const path = require('path');
 const middleware = require('./middleware');
 const ClientCapability = twilio.jwt.ClientCapability;
+const VoiceResponse = twilio.twiml.VoiceResponse;
 const app = express();
 
 app.use(cors());
@@ -57,7 +58,7 @@ app.post('/call-token', (req, res) => {
       if (firstApp) {
         capability.addScope(
           new ClientCapability.OutgoingClientScope({
-            applicationSid: firstApp.sid
+            applicationSid: 'AP3905f8a1ab9a5ca7ec1408affeea932d'
           })
         );
         const token = capability.toJwt();
@@ -76,6 +77,16 @@ app.post('/call-token', (req, res) => {
       token: null,
     });
   });
+});
+
+// Create TwiML for outbound calls
+app.post('/voice', (request, response) => {
+  let voiceResponse = new VoiceResponse();
+  voiceResponse.dial({
+    callerId: request.body.fromNumber,
+  }, request.body.To);
+  response.type('text/xml');
+  response.send(voiceResponse.toString());
 });
 
 const isProd = process.env.NODE_ENV === 'production';

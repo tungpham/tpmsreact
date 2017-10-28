@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { makeSelectUserProfile } from '../selectors/user';
 import { makeSelectCallCenter } from '../selectors/app';
 import Fetcher from '../core/fetcher';
-import { closeCall } from '../actions/app';
+import { closeCall, getCallLogs } from '../actions/app';
 import { Numbers } from '../components/DialPad';
 
 
@@ -41,12 +41,17 @@ export class CallControl extends React.PureComponent {
         self.setState({log: 'Something look like went wrong!'});
       });
 
+      Twilio.Device.error(function(error) {
+        console.log(error.message);
+      });
+
       // Configure event handlers for Twilio Device
       Twilio.Device.disconnect(function() {
         self.setState({
           onPhone: false,
           log: 'Call ended.'
         });
+        self.props.dispatch(getCallLogs({ phoneNumber: self.props.callCenter.from, auth: self.props.auth }));
       });
       Twilio.Device.ready(function() {
         self.log = 'Connected';
@@ -56,7 +61,7 @@ export class CallControl extends React.PureComponent {
     const self = this;
 
     if (newProps.callCenter.calling && !this.props.callCenter.calling && this.props.auth) {
-      Twilio.Device.connect({ number: newProps.callCenter.to });
+      Twilio.Device.connect({ To: newProps.callCenter.to, fromNumber: newProps.callCenter.from });
       self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true })
     }
   }
