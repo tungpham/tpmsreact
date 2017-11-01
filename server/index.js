@@ -113,6 +113,17 @@ if (isProd) {
   middleware.dev(app, webpackConfig);
 }
 
+
+const socketHandler = io => {
+  io.on('connection', function (socket) {
+    console.log('A member connected!');
+    sockets[socket.handshake.query.AccountSid] = socket;
+    socket.on('disconnect', () => {
+      delete sockets[socket.handshake.query.userId];
+    });
+  });
+};
+
 if (isProd) {
   const options = {
     key: fs.readFileSync('/etc/letsencrypt/live/tpmsreact.uptind.com/privkey.pem'),
@@ -121,7 +132,8 @@ if (isProd) {
   };
 
   const httpsServer = https.createServer(options, app);
-
+  const io = require('socket.io')(httpsServer);
+  socketHandler(io);
   httpsServer.listen(3002, '0.0.0.0', () => {
     console.info('==> 🌎  API is running on port %s', app.get('port'), app.get('env'));
   });
@@ -131,14 +143,7 @@ if (isProd) {
   server.listen(3002, function () {
     console.log('TPMS listening on port 3002!')
   });
-
-  io.on('connection', function (socket) {
-    console.log('A member connected!');
-    sockets[socket.handshake.query.AccountSid] = socket;
-    socket.on('disconnect', () => {
-      delete sockets[socket.handshake.query.userId];
-    });
-  });
+  socketHandler(io);
 }
 
 
