@@ -38,7 +38,7 @@ class Dashboard extends React.PureComponent {
     if (process.env.NODE_ENV === 'production') {
       secure = true;
     }
-    const socket = io.connect('http://localhost:3002', { secure, query }); //eslint-disable-line
+    const socket = io.connect('/', { secure, query }); //eslint-disable-line
     socket.on('NEW_MESSAGE', data => {
       const message = {
         account_sid: data.AccountSid,
