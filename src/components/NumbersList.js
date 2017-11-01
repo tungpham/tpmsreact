@@ -40,7 +40,7 @@ export const NumbersList = ({ active, numbers, onClick }) => (
         id={number.id}
         number={number.friendlyName}
         active={active === number.phoneNumber}
-        conversations={0}
+        conversations={number.totalUnreadMessage}
         onClick={onClick}
         data={number}
       />

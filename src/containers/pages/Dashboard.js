@@ -9,9 +9,10 @@ import ContactView from '../../components/ContactView';
 import DialPad from '../../components/DialPad';
 import NewContact from '../../components/NewContact';
 import CallView from '../../components/CallView';
-import { getAllPhoneNumber } from '../../actions/app';
+import { getAllPhoneNumber, receivedNewMessage, clearUnreadMessageCount } from '../../actions/app';
 import { makeSelectUserProfile } from '../../selectors/user';
 import { makeSelectNumbers } from '../../selectors/app';
+import Notification from '../../core/notification';
 import { connect } from 'react-redux';
 
 const cx = (base, type, active) =>
@@ -29,9 +30,33 @@ class Dashboard extends React.PureComponent {
 
   componentWillMount() {
     this.props.dispatch(getAllPhoneNumber(this.props.auth.user));
+    let query = '';
+    let secure = false;
+    if (this.props.auth) {
+      query += `AccountSid=${this.props.auth.userMetadata.sid}`;
+    }
+    if (process.env.NODE_ENV === 'production') {
+      secure = true;
+    }
+    const socket = io.connect('http://localhost:3002', { secure, query }); //eslint-disable-line
+    socket.on('NEW_MESSAGE', data => {
+      const message = {
+        account_sid: data.AccountSid,
+        api_version: data.ApiVersion,
+        body: data.Body,
+        from: data.From,
+        sid: data.MessageSid,
+        to: data.To,
+        date_sent: new Date(),
+      };
+      Notification.newMessage(`New message from ${message.from}:`, message.body);
+      this.props.dispatch(receivedNewMessage(message));
+      console.log('Received new messages');
+    });
   }
 
   redirectNumber(number) {
+    this.props.dispatch(clearUnreadMessageCount(number.phoneNumber));
     this.props.history.push(`/dashboard/${number.phoneNumber}/conversation`);
   }
 

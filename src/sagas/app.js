@@ -1,4 +1,5 @@
 import { put, call, takeLatest } from 'redux-saga/effects';
+import { push } from 'react-router';
 import {
   GET_ALL_PHONE_NUMBER,
   GET_CALL_LOGS,
@@ -29,7 +30,9 @@ function* getAllPhoneNumberHandle(action) {
   try {
     const response = yield call(fetchAllPhoneNumber, action);
     if (response.status === 200) {
-      yield put(getAllPhoneNumberSuccessfully(response.response));
+      const numbers = response.response;
+      numbers.map(number => number.totalUnreadMessage = 0);
+      yield put(getAllPhoneNumberSuccessfully(numbers));
     }
   } catch (errors) {
     console.error(errors);
@@ -159,19 +162,21 @@ function fetchSendMessage(action) {
     account_sid: action.payload.auth.userMetadata.sid,
     auth_token: action.payload.auth.userMetadata.auth_token,
     userId: action.payload.auth.user.id,
-    from: encodeURIComponent(action.payload.from),
-    to: encodeURIComponent(action.payload.to),
+    from: action.payload.from,
+    to: action.payload.to,
     body: action.payload.body,
-    type: action.payload.type || 'to_new_phone_number'
+    date_sent: `${new Date().getTime()}`,
+    group_id: '',
   };
-  return Fetcher.post(`/api/v1/message/send-message`, body);
+  return Fetcher.post(`/api/v1/message/send-message`, body, false);
 }
 
 function* getSendMessageHandle(action) {
   try {
     const response = yield call(fetchSendMessage, action);
-    if (response.status === 200) {
-      yield put(sendMessageSuccessfully(response.response));
+    if (response.status >= 200 && response.status <= 300) {
+      yield put(sendMessageSuccessfully(response.response[0]));
+      action.payload.history.push(`/dashboard/${action.payload.from}/conversation/${action.payload.to}`);
     }
   } catch (errors) {
     console.error(errors);

@@ -12,6 +12,8 @@ const ClientCapability = twilio.jwt.ClientCapability;
 const VoiceResponse = twilio.twiml.VoiceResponse;
 const app = express();
 
+const sockets = {};
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/stream/without-parser', (req, res, next) => {
@@ -91,6 +93,14 @@ app.post('/voice', (request, response) => {
   response.send(voiceResponse.toString());
 });
 
+app.post('/message', (req, res) => {
+  const client = sockets[req.body.AccountSid];
+  if (typeof client !== 'undefined') {
+    client.emit('NEW_MESSAGE', req.body);
+    res.json({status: true});
+  }
+});
+
 const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
@@ -116,8 +126,18 @@ if (isProd) {
     console.info('==> 🌎  API is running on port %s', app.get('port'), app.get('env'));
   });
 } else {
-  app.listen(3002, function () {
+  const server = require('http').Server(app);
+  const io = require('socket.io')(server);
+  server.listen(3002, function () {
     console.log('TPMS listening on port 3002!')
+  });
+
+  io.on('connection', function (socket) {
+    console.log('A member connected!');
+    sockets[socket.handshake.query.AccountSid] = socket;
+    socket.on('disconnect', () => {
+      delete sockets[socket.handshake.query.userId];
+    });
   });
 }
 

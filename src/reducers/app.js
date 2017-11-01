@@ -34,6 +34,14 @@ const getCurrentContact = (contacts, contactId) => {
   return contacts.find(contact => contact.id === contactId);
 };
 
+const conversationRecordIndexByPhoneNumber = (records, phoneNumber) => {
+  return records.indexOf(records.find(record => record.phone_number === phoneNumber));
+};
+
+const getNumberIndexByPhoneNumber = (numbers, phoneNumber) => {
+  return numbers.indexOf(numbers.find(number => number.phoneNumber === phoneNumber));
+};
+
 function AppReducer(state = initialState, action) {
   switch (action.type) {
 
@@ -88,6 +96,15 @@ function AppReducer(state = initialState, action) {
         .setIn(['callCenter', 'from'], '')
         .setIn(['callCenter', 'to'], '');
 
+    case types.SEND_MESSAGE_SUCCESSFULLY:
+      const conversationRecords = state.getIn(['conversations', 'records']).toJS();
+      const index = conversationRecords.indexOf(conversationRecords.find(record => record.phone_number === action.payload.to));
+      if (index > -1) {
+        return state.updateIn(['conversations', 'records', index, 'message_items'], messages => messages.push({...action.payload, date_sent: new Date()}));
+      }
+      return state.updateIn(['conversations', 'records'],
+        records => records.push({ phone_number: action.payload.to, message_items: [...[], {...action.payload, date_sent: new Date()}] }));
+
     case types.UPDATE_CONTACT_SUCCESSFULLY:
       const contacts = state.get('contacts').toJS();
       const currentContact = contacts.find(contact => contact.id === action.payload.id);
@@ -97,6 +114,25 @@ function AppReducer(state = initialState, action) {
       return state.update('contacts',
         contacts => contacts.splice(contacts.indexOf(getCurrentContact(state.get('contacts').toJS(), action.payload)) , 1)
       );
+
+    case types.CLEAR_UNREAD_MESSAGE_COUNT:
+      const phoneNumberIndex = getNumberIndexByPhoneNumber(state.get('numbers').toJS(), action.payload);
+      console.log(phoneNumberIndex);
+      if (phoneNumberIndex && phoneNumberIndex > -1) {
+        return state.setIn(['numbers', phoneNumberIndex, 'totalUnreadMessage'], 0);
+      }
+      return;
+
+    case types.RECEIVED_NEW_MESSAGE:
+      const numbers = state.get('numbers').toJS();
+      const toNumber = numbers.find(number => number.phoneNumber === action.payload.to);
+      const conversationIndex = conversationRecordIndexByPhoneNumber(state.getIn(['conversations', 'records']).toJS(), action.payload.to);
+      if (toNumber) {
+        return state.updateIn(['numbers', numbers.indexOf(toNumber), 'totalUnreadMessage'], total => total + 1)
+          .updateIn(['conversations', 'records', conversationIndex, 'message_items'],
+            messages => (messages) ? messages.push({...action.payload, date_sent: new Date()}) : messages);
+      }
+      return;
 
     default:
       return state;

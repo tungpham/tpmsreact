@@ -133,3 +133,16 @@ export function closeCall(payload) {
   };
 }
 
+export function receivedNewMessage(payload) {
+  return {
+    type: types.RECEIVED_NEW_MESSAGE,
+    payload
+  };
+}
+
+export function clearUnreadMessageCount(payload) {
+  return {
+    type: types.CLEAR_UNREAD_MESSAGE_COUNT,
+    payload
+  };
+}

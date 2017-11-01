@@ -3,16 +3,63 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { withRouter } from 'react-router-dom';
 import moment from 'moment';
-// import { makeSelectUserProfile } from '../selectors/user';
 import { makeSelectConversationMessages } from '../selectors/app';
-// import { getConversations, getCallLogs } from '../actions/app';
 import ScrollToBottom from './ScrollToBottom';
 import SendMessage from './SendMessage';
+import { sendMessage } from '../actions/app';
+import { makeSelectUserProfile } from '../selectors/user';
 
 const nl2br = text =>
   text.split("\n").map((item, key) => <span key={key}>{item}<br /></span>);
 
 class MessagesView extends React.PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      message: '',
+      number: ''
+    };
+    this.setNumber = this.setNumber.bind(this);
+    this.setMessage = this.setMessage.bind(this);
+    this.onKeyPress = this.onKeyPress.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
+  }
+
+  setNumber(value, input = false) {
+    if (input) {
+      return this.setState({ ...this.state, number: value });
+    }
+    let number = this.state.number;
+    number += value;
+    this.setState({ ...this.state, number });
+  }
+
+  setMessage(e) {
+    this.setState({ ...this.state, message: e.target.value });
+  }
+
+  onKeyPress(e) {
+    const { key, shiftKey } = e;
+    if (key === "Enter" && !shiftKey) {
+      this.sendMessage();
+      e.preventDefault();
+    }
+  }
+
+  sendMessage() {
+    if (this.state.message.trim().length > 0) {
+      this.props.dispatch(sendMessage({
+        auth: this.props.auth,
+        from: this.props.from,
+        to: this.props.to,
+        body: this.state.message,
+        history: this.props.history,
+      }));
+      this.setState({ message: '' });
+    }
+  }
+
   render() {
     return (
       <div className="messages-view-container">
@@ -40,7 +87,7 @@ class MessagesView extends React.PureComponent {
                       {nl2br(message.body)}
                     </div>
                     <div className="message-date">
-                      {moment(message.date_sent).format("h:mm a")}
+                      {moment((message.date_sent) ? message.date_sent : new Date()).format("h:mm a")}
                     </div>
                   </div>
                 </div>
@@ -48,7 +95,13 @@ class MessagesView extends React.PureComponent {
             })}
           </div>
         </ScrollToBottom>
-        <SendMessage onMessage={() => {}} />
+        <SendMessage
+          onMessage={this.props.onMessage}
+          value={this.state.message}
+          onSubmit={this.sendMessage}
+          onKeyPress={this.onKeyPress}
+          onChange={this.setMessage}
+        />
       </div>
     );
   }
@@ -56,6 +109,7 @@ class MessagesView extends React.PureComponent {
 
 const mapStateToProps = createStructuredSelector({
   messages: makeSelectConversationMessages(),
+  auth: makeSelectUserProfile(),
 });
 
 function mapDispatchToProps(dispatch) {

@@ -1,12 +1,24 @@
+import _ from 'lodash';
+
 const makeSelectAppFetched = () => (state) => state.get('app').toJS().profile;
 const makeSelectNumbers = () => (state) => state.get('app').toJS().numbers;
-const makeSelectConversations = () => (state) => state.get('app').toJS().conversations;
 const makeSelectCallLogs = () => (state) => state.get('app').toJS().callLogs;
 const makeSelectContacts = () => (state) => {
   const contact = state.getIn(['app', 'contacts']).toJS();
   contact.items.reverse();
   return contact;
 };
+
+const makeSelectConversations = () => (state) => {
+  let conversations = state.getIn(['app', 'conversations']).toJS();
+  let records = conversations.records;
+  records.map(record => record.lastMessageDateSent = record.message_items[record.message_items.length - 1].date_sent);
+  records = _.orderBy(records, (record) => new Date(record.lastMessageDateSent).getTime(), ['desc']);
+  conversations.records = records;
+  return conversations;
+};
+
+
 const makeSelectEditContactData = () => (state) => state.getIn(['app', 'editContactData']).toJS();
 const makeSelectCallCenter = () => (state) => state.getIn(['app', 'callCenter']).toJS();
 

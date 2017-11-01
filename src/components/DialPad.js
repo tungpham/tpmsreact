@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col, Input } from 'reactstrap';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import SendMessage from './SendMessage';
 import { sendMessage, makeCall } from '../actions/app';
 import { makeSelectUserProfile } from '../selectors/user';
@@ -85,7 +86,9 @@ export class DialPad extends React.PureComponent {
         from: this.props.number,
         to: this.state.number,
         body: this.state.message,
+        history: this.props.history,
       }));
+      this.setState({ message: '' });
     }
   }
 
@@ -129,4 +132,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DialPad);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(DialPad));

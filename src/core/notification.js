@@ -14,6 +14,13 @@ const NotificationCenter = {
     });
   },
 
+  newMessage(title, message) {
+    notification['success']({
+      message: title,
+      description: message,
+    });
+  },
+
   warning(message) {
     notification['warning']({
       message: 'Warning!',
