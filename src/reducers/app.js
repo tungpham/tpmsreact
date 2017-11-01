@@ -121,7 +121,7 @@ function AppReducer(state = initialState, action) {
       if (phoneNumberIndex && phoneNumberIndex > -1) {
         return state.setIn(['numbers', phoneNumberIndex, 'totalUnreadMessage'], 0);
       }
-      return;
+      return state;
 
     case types.RECEIVED_NEW_MESSAGE:
       const numbers = state.get('numbers').toJS();
@@ -132,7 +132,7 @@ function AppReducer(state = initialState, action) {
           .updateIn(['conversations', 'records', conversationIndex, 'message_items'],
             messages => (messages) ? messages.push({...action.payload, date_sent: new Date()}) : messages);
       }
-      return;
+      return state;
 
     default:
       return state;
