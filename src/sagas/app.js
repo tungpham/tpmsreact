@@ -171,7 +171,7 @@ function fetchSendMessage(action) {
   return Fetcher.post(`/api/v1/message/send-message`, body, false);
 }
 
-function* getSendMessageHandle(action) {
+function* sendMessageHandle(action) {
   try {
     const response = yield call(fetchSendMessage, action);
     if (response.status >= 200 && response.status <= 300) {
@@ -184,7 +184,7 @@ function* getSendMessageHandle(action) {
 }
 
 export function* sendMessage() {
-  yield takeLatest(SEND_MESSAGE, getSendMessageHandle);
+  yield takeLatest(SEND_MESSAGE, sendMessageHandle);
 }
 
 

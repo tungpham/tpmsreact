@@ -629,9 +629,16 @@ body {
             border-radius: 50%;
             border: 5px solid $brand-primary;
             color: $brand-primary;
-            padding: 0.5em;
+            padding: 0.47em;
+            padding-left: 0.55em;
             cursor: pointer;
+            width: 80px;
+            heigh: 80px;
             margin: 0.5em;
+        }
+        .fa-comment {
+            padding-top: 0.45em;
+            padding-left: 0.47em;
         }
     }
 
@@ -946,5 +953,11 @@ body {
         margin-top: 25%;
         font-size: 20px;
         color: #555;
+    }
+}
+
+@media (max-width:1224px) { 
+    .numbers-list {
+        font-size: 0.9rem;
     }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { makeSelectUserProfile } from '../selectors/user';
 import { makeSelectNumbers, makeSelectContact } from '../selectors/app';
 import { createContact, deleteContact, makeCall } from '../actions/app';
@@ -47,7 +48,11 @@ export class ContactView extends React.PureComponent {
 
   deleteContact() {
     if (confirm('Are you sure to delete this contact!')) {
-      this.props.dispatch(deleteContact(this.props.contact.id));
+      this.props.dispatch(deleteContact({
+        contactId: this.props.contact.id,
+        history: this.props.history,
+        from: this.props.from,
+      }));
     }
   }
 
@@ -138,4 +143,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactView);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ContactView));

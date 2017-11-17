@@ -86,13 +86,14 @@ export function* createContact() {
  * @return {*}
  */
 function fetchDeleteContact(action) {
-  return Fetcher.Delete(`/api/v1/contact/${action.payload}`);
+  return Fetcher.Delete(`/api/v1/contact/${action.payload.contactId}`);
 }
 
 function* deleteContactHandle(action) {
   try {
     const response = yield call(fetchDeleteContact, action);
     yield put(deleteContactSuccessfully(response.response));
+    action.payload.history.push(`/dashboard/${action.payload.from}/contacts`);
     NotificationCenter.success('Delete contact successfully!')
   } catch (errors) {
     NotificationCenter.somethingLookLikeWentWrong();

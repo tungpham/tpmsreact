@@ -82,7 +82,7 @@ function AppReducer(state = initialState, action) {
         .setIn(['contacts', 'items'], fromJS(action.payload)).setIn(['contacts', 'loading'], false);
 
     case types.CREATE_CONTACT_SUCCESSFULLY:
-      return state.update('contacts', contacts => contacts.push(action.payload));
+      return state.updateIn(['contacts', 'items'], contacts => contacts.push(action.payload));
 
     case types.MAKE_CALL:
       return state
@@ -106,13 +106,13 @@ function AppReducer(state = initialState, action) {
         records => records.push({ phone_number: action.payload.to, message_items: [...[], {...action.payload, date_sent: new Date()}] }));
 
     case types.UPDATE_CONTACT_SUCCESSFULLY:
-      const contacts = state.get('contacts').toJS();
+      const contacts = state.getIn(['contacts', 'items']).toJS();
       const currentContact = contacts.find(contact => contact.id === action.payload.id);
-      return state.setIn(['contacts', contacts.indexOf(currentContact)], action.payload);
+      return state.setIn(['contacts', 'items', contacts.indexOf(currentContact)], action.payload);
 
     case types.DELETE_CONTACT_SUCCESSFULLY:
-      return state.update('contacts',
-        contacts => contacts.splice(contacts.indexOf(getCurrentContact(state.get('contacts').toJS(), action.payload)) , 1)
+      return state.updateIn(['contacts', 'items'],
+        contacts => contacts.splice(contacts.indexOf(getCurrentContact(state.getIn(['contacts', 'items']).toJS(), action.payload)) , 1)
       );
 
     case types.CLEAR_UNREAD_MESSAGE_COUNT:
