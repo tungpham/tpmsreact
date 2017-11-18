@@ -117,8 +117,7 @@ function AppReducer(state = initialState, action) {
 
     case types.CLEAR_UNREAD_MESSAGE_COUNT:
       const phoneNumberIndex = getNumberIndexByPhoneNumber(state.get('numbers').toJS(), action.payload);
-      console.log(phoneNumberIndex);
-      if (phoneNumberIndex && phoneNumberIndex > -1) {
+      if (phoneNumberIndex > -1) {
         return state.setIn(['numbers', phoneNumberIndex, 'totalUnreadMessage'], 0);
       }
       return state;
