@@ -127,13 +127,12 @@ function AppReducer(state = initialState, action) {
       const numbers = state.get('numbers').toJS();
       const toNumber = numbers.find(number => number.phoneNumber === action.payload.to);
       const conversationIndex = conversationRecordIndexByPhoneNumber(state.getIn(['conversations', 'records']).toJS(), action.payload.to);
-      if (toNumber) {
-        const messageItems = state.getIn(['conversations', 'records', conversationIndex, 'message_items']).toJS();
-        const currentMessageItem = messageItems.find(item => item.sid === action.payload.sid);
-        if (currentMessageItem) return state;
+      if (toNumber && conversationIndex > -1) {
         return state.updateIn(['numbers', numbers.indexOf(toNumber), 'totalUnreadMessage'], total => total + 1)
           .updateIn(['conversations', 'records', conversationIndex, 'message_items'],
-            messages => (messages) ? messages.push({...action.payload, date_sent: new Date()}) : messages);
+            messages => (messages && !messages.toJS().find(item => item.sid === action.payload.sid)) ? messages.push({...action.payload, date_sent: new Date()}) : messages);
+      } else if (conversationIndex === -1) {
+        return state.updateIn(['numbers', numbers.indexOf(toNumber), 'totalUnreadMessage'], total => total + 1);
       }
       return state;
 
