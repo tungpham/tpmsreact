@@ -94,11 +94,13 @@ app.post('/voice', (request, response) => {
 });
 
 app.post('/message', (req, res) => {
-  const client = sockets[req.body.AccountSid];
-  if (typeof client !== 'undefined') {
-    client.emit('NEW_MESSAGE', req.body);
-    res.json({status: true});
-  }
+  const clients = sockets[req.body.AccountSid] || [];
+  clients.forEach(client => {
+    if (typeof client !== 'undefined') {
+      client.emit('NEW_MESSAGE', req.body);
+      res.json({status: true});
+    }
+  });
 });
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -117,9 +119,14 @@ if (isProd) {
 const socketHandler = io => {
   io.on('connection', function (socket) {
     console.log('A member connected!');
-    sockets[socket.handshake.query.AccountSid] = socket;
+    if (typeof sockets[socket.handshake.query.AccountSid] !== 'undefined') {
+      sockets[socket.handshake.query.AccountSid].push(socket);
+    } else {
+      sockets[socket.handshake.query.AccountSid] = [socket];
+    }
     socket.on('disconnect', () => {
-      delete sockets[socket.handshake.query.userId];
+      const index = sockets[socket.handshake.query.AccountSid].indexOf(sockets[socket.handshake.query.AccountSid].find(s => s.id === socket.id));
+      sockets[socket.handshake.query.AccountSid].splice(index, 1);
     });
   });
 };
