@@ -13,6 +13,7 @@ import {
   getCallLogsSuccessfully,
   sendMessageSuccessfully,
   getRecordsSuccessfully,
+  getCallTokenSuccess,
 } from '../actions/app';
 import Fetcher from '../core/fetcher';
 
@@ -23,7 +24,11 @@ import Fetcher from '../core/fetcher';
  * @return {*}
  */
 function fetchAllPhoneNumber(action) {
-  return Fetcher.get(`/api/v1/phone-number?userId=${action.payload.id}`);
+  return Fetcher.get(`/api/v1/phone-number?userId=${action.payload.auth.user.id}`);
+}
+
+function fetchCallTokenByNumber(action, callback) {
+  Fetcher.post(`/api/v1/call/token`, {...action, application_sid: process.env.TWILIO_TWIML_APP_ID}, false).then(response => callback(response.response));
 }
 
 function* getAllPhoneNumberHandle(action) {
@@ -31,6 +36,13 @@ function* getAllPhoneNumberHandle(action) {
     const response = yield call(fetchAllPhoneNumber, action);
     if (response.status === 200) {
       const numbers = response.response;
+
+      numbers.map(number => fetchCallTokenByNumber({
+        client: number.phoneNumber,
+        account_sid: action.payload.auth.userMetadata.sid,
+        auth_token: action.payload.auth.userMetadata.auth_token },
+        token => action.payload.dispatch(getCallTokenSuccess({ phoneNumber: number.phoneNumber, token }))));
+
       numbers.map(number => number.totalUnreadMessage = 0);
       yield put(getAllPhoneNumberSuccessfully(numbers));
     }

@@ -146,3 +146,10 @@ export function clearUnreadMessageCount(payload) {
     payload
   };
 }
+
+export function getCallTokenSuccess(payload) {
+  return {
+    type: types.GET_CALL_TOKEN_SUCCESS,
+    payload
+  };
+}

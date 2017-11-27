@@ -62,7 +62,7 @@ app.post('/call-token', (req, res) => {
       if (firstApp) {
         capability.addScope(
           new ClientCapability.OutgoingClientScope({
-            applicationSid: 'AP3905f8a1ab9a5ca7ec1408affeea932d'
+            applicationSid: 'APe57d5cadca2441d0ae9d1c2660905885'
           })
         );
         const token = capability.toJwt();

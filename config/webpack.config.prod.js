@@ -244,7 +244,8 @@ module.exports = {
         AUTH0_API_GRANT_TYPE: JSON.stringify(process.env.AUTH0_API_GRANT_TYPE),
         AUTH0_API_CLIENT_ID: JSON.stringify(process.env.AUTH0_API_CLIENT_ID),
         AUTH0_API_CLIENT_SECRET: JSON.stringify(process.env.AUTH0_API_CLIENT_SECRET),
-        END_POINT_URL: JSON.stringify(process.env.END_POINT_URL)
+        END_POINT_URL: JSON.stringify(process.env.END_POINT_URL),
+        TWILIO_TWIML_APP_ID: JSON.stringify(process.env.TWILIO_TWIML_APP_ID)
       },
     }),
 

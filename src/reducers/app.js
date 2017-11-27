@@ -6,6 +6,9 @@ const initialState = fromJS({
   numbers: [
 
   ],
+  callTokens: {
+
+  },
   conversations: {
     loading: false,
     records: [],
@@ -52,6 +55,9 @@ function AppReducer(state = initialState, action) {
     case types.GET_ALL_PHONE_NUMBER_SUCCESSFULLY:
       return state
         .set('numbers', fromJS(action.payload));
+
+    case types.GET_CALL_TOKEN_SUCCESS:
+      return state.setIn(['callTokens', action.payload.phoneNumber], action.payload.token);
 
     case types.GET_CONVERSATIONS:
       return state.setIn(['conversations', 'loading'], true);

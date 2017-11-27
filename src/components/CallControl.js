@@ -4,15 +4,16 @@ import Modal from 'antd/lib/modal';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { makeSelectUserProfile } from '../selectors/user';
-import { makeSelectCallCenter } from '../selectors/app';
-import Fetcher from '../core/fetcher';
+import { makeSelectCallCenter, makeSelectCallTokens } from '../selectors/app';
+// import Fetcher from '../core/fetcher';
 import { closeCall, getCallLogs } from '../actions/app';
 import { Numbers } from '../components/DialPad';
+import CallTimer from '../components/CallTimer';
 
 
 const MuteButton = ({ smallText, muted, handleOnClick }) => (
-  <button className="btn btn-circle btn-default" onClick={handleOnClick}>
-    <i className={'fa fa-fw fa-microphone ' + (muted ? 'fa-microphone-slash': 'fa-microphone')} />
+  <button className="btn btn-circle btn-default p-20" onClick={handleOnClick}>
+    <i className={'fa fa-2x fa-microphone ' + (muted ? 'fa-microphone-slash': 'fa-microphone')} />
   </button>
 );
 
@@ -23,46 +24,49 @@ export class CallControl extends React.PureComponent {
     this.state = {
       muted: false,
       log: 'Connecting...',
+      answered: false,
       onPhone: false,
     };
     this.sendDigit = this.sendDigit.bind(this);
     this.closeCall = this.closeCall.bind(this);
   }
 
-  componentWillReceiveProps(newProps) {
-    if(newProps.auth.user && !this.props.auth.user) {
-      Fetcher.getCallToken(
-        newProps.auth.userMetadata.sid,
-        newProps.auth.userMetadata.auth_token
-      ).then(response => {
-        Twilio.Device.setup(response.token);
-      }).catch(e => {
-        console.log(e);
-        self.setState({log: 'Something look like went wrong!'});
-      });
-
-      Twilio.Device.error(function(error) {
-        console.log(error.message);
-      });
-
-      // Configure event handlers for Twilio Device
-      Twilio.Device.disconnect(function() {
-        self.setState({
-          onPhone: false,
-          log: 'Call ended.'
-        });
-        self.props.dispatch(getCallLogs({ phoneNumber: self.props.callCenter.from, auth: self.props.auth }));
-      });
-      Twilio.Device.ready(function() {
-        self.log = 'Connected';
-      });
-    }
-
+  componentDidMount() {
     const self = this;
+    Twilio.Device.error(function(error) {
+      console.log(error.message);
+    });
 
+    // Configure event handlers for Twilio Device
+    Twilio.Device.disconnect(function() {
+      self.setState({
+        onPhone: false,
+        log: 'Call ended.'
+      });
+      self.props.dispatch(getCallLogs({ phoneNumber: self.props.callCenter.from, auth: self.props.auth }));
+      self.setState({ answered: false });
+      self.props.dispatch(closeCall());
+      Twilio.Device.destroy();
+    });
+  }
+
+  componentWillReceiveProps(newProps) {
+    const self = this;
     if (newProps.callCenter.calling && !this.props.callCenter.calling && this.props.auth) {
-      Twilio.Device.connect({ To: newProps.callCenter.to, fromNumber: newProps.callCenter.from });
-      self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true })
+      self.setState({ log: 'Connecting...'});
+      Twilio.Device.setup(this.props.callTokens[newProps.callCenter.from], { enableRingingState: true });
+      Twilio.Device.ready(function() {
+        Twilio.Device.connect({ To: newProps.callCenter.to, From: newProps.callCenter.from });
+        self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true });
+        const callStatusListen = setInterval(() => {
+          if (typeof Twilio.Device.activeConnection() == 'undefined') {
+            clearInterval(callStatusListen);
+          }
+          if (Twilio.Device.activeConnection().status() === 'open') {
+            if (!self.state.answered) self.setState({ answered: true });
+          }
+        }, 1000);
+      });
     }
   }
 
@@ -83,15 +87,15 @@ export class CallControl extends React.PureComponent {
 
   closeCall() {
     Twilio.Device.disconnectAll();
-    this.props.dispatch(closeCall());
   }
 
   render() {
     return (
       <div>
-        <Modal footer={''} title={this.state.log} visible={this.props.callCenter.calling} closable={true} onCancel={this.closeCall}>
+        <Modal footer={''} title={this.state.log} wrapClassName="call-control" visible={this.props.callCenter.calling} closable={false}>
           <div className="row">
             <div className="controls col-md-12 text-center dialpad">
+              {this.state.answered && <b className="text-muted p-20"><CallTimer /></b>}
               { this.state.onPhone ? <Numbers onClick={this.sendDigit.bind(this)} /> : null }
             </div>
           </div>
@@ -115,6 +119,7 @@ export class CallControl extends React.PureComponent {
 const mapStateToProps = createStructuredSelector({
   auth: makeSelectUserProfile(),
   callCenter: makeSelectCallCenter(),
+  callTokens: makeSelectCallTokens(),
 });
 
 function mapDispatchToProps(dispatch) {

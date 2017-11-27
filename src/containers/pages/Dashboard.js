@@ -28,8 +28,8 @@ class Dashboard extends React.PureComponent {
     this.redirectRecordDetail = this.redirectRecordDetail.bind(this);
   }
 
-  componentWillMount() {
-    this.props.dispatch(getAllPhoneNumber(this.props.auth.user));
+  componentDidMount() {
+    this.props.dispatch(getAllPhoneNumber({ auth: this.props.auth, dispatch: this.props.dispatch }));
     let query = '';
     let secure = false;
     if (this.props.auth) {

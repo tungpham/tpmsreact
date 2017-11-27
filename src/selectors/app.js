@@ -3,6 +3,7 @@ import _ from 'lodash';
 const makeSelectAppFetched = () => (state) => state.get('app').toJS().profile;
 const makeSelectNumbers = () => (state) => state.get('app').toJS().numbers;
 const makeSelectCallLogs = () => (state) => state.get('app').toJS().callLogs;
+const makeSelectCallTokens = () => state => state.getIn(['app', 'callTokens']).toJS();
 const makeSelectContacts = () => (state) => {
   const contact = state.getIn(['app', 'contacts']).toJS();
   contact.items.reverse();
@@ -68,5 +69,6 @@ export {
   makeSelectRecords,
   makeSelectCallCenter,
   makeSelectContact,
+  makeSelectCallTokens,
   makeSelectEditContactData,
 }
