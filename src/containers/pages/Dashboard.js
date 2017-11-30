@@ -2,6 +2,8 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import { createStructuredSelector } from 'reselect';
 import { withRouter } from 'react-router-dom';
+import firebase from 'firebase/app';
+import 'firebase/messaging';
 import NumbersList from '../../components/NumbersList';
 import ChatsList from '../../components/ChatsList';
 import MessagesView from '../../components/MessagesView';
@@ -12,7 +14,7 @@ import CallView from '../../components/CallView';
 import { getAllPhoneNumber, receivedNewMessage, clearUnreadMessageCount } from '../../actions/app';
 import { makeSelectUserProfile } from '../../selectors/user';
 import { makeSelectNumbers } from '../../selectors/app';
-import Notification from '../../core/notification';
+import Fetcher from '../../core/fetcher';
 import { connect } from 'react-redux';
 
 const cx = (base, type, active) =>
@@ -29,29 +31,27 @@ class Dashboard extends React.PureComponent {
   }
 
   componentDidMount() {
+    const vm = this;
     this.props.dispatch(getAllPhoneNumber({ auth: this.props.auth, dispatch: this.props.dispatch }));
-    let query = '';
-    let secure = false;
-    if (this.props.auth) {
-      query += `AccountSid=${this.props.auth.userMetadata.sid}`;
-    }
-    if (process.env.NODE_ENV === 'production') {
-      secure = true;
-    }
-    const socket = io.connect('/', { secure, query }); //eslint-disable-line
-    socket.on('NEW_MESSAGE', data => {
+    firebase.initializeApp({
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      databaseURL: process.env.FIREBASE_DATABASE_URL,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
+    });
+    const messaging = firebase.messaging();
+    messaging.getToken().then(token => Fetcher.updateFireBaseToken(this.props.auth.user.id, token));
+    messaging.onMessage(function (payload) {
       const message = {
-        account_sid: data.AccountSid,
-        api_version: data.ApiVersion,
-        body: data.Body,
-        from: data.From,
-        sid: data.MessageSid,
-        to: data.To,
+        body: JSON.parse(payload.notification.body).body,
+        from: JSON.parse(payload.notification.body).from,
+        sid: JSON.parse(payload.notification.body).messageSid,
+        to: JSON.parse(payload.notification.body).to,
         date_sent: new Date(),
       };
-      Notification.newMessage(`New message from ${message.from}:`, message.body);
-      this.props.dispatch(receivedNewMessage(message));
-      console.log('Received new messages');
+      vm.props.dispatch(receivedNewMessage(message));
     });
   }
 

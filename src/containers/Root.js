@@ -17,7 +17,6 @@ import runSagas from '../sagas';
 
 const auth = new Auth();
 
-
 export const Root = ({ history, store }) => {
 
   runSagas(store);

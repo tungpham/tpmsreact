@@ -245,7 +245,13 @@ module.exports = {
         AUTH0_API_CLIENT_ID: JSON.stringify(process.env.AUTH0_API_CLIENT_ID),
         AUTH0_API_CLIENT_SECRET: JSON.stringify(process.env.AUTH0_API_CLIENT_SECRET),
         END_POINT_URL: JSON.stringify(process.env.END_POINT_URL),
-        TWILIO_TWIML_APP_ID: JSON.stringify(process.env.TWILIO_TWIML_APP_ID)
+        TWILIO_TWIML_APP_ID: JSON.stringify(process.env.TWILIO_TWIML_APP_ID),
+        FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY),
+        FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN),
+        FIREBASE_DATABASE_URL: JSON.stringify(process.env.FIREBASE_DATABASE_URL),
+        FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID),
+        FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
+        FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
       },
     }),
 

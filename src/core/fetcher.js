@@ -99,6 +99,21 @@ class Fetcher {
     })
   }
 
+  updateFireBaseToken(userId, token) {
+    return this.buildHeaders().then(headers => {
+      return fetch('/stream/without-parser', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ url: `${process.env.END_POINT_URL}/api/v1/user/${userId}/token?token=${token}&platform=2`, method: 'PUT' }),
+      }).then(response => {
+        Fetcher.processResponse(response);
+        return response.json();
+      }).then(response => {
+
+      });
+    });
+  }
+
   /**
    * Handle response
    * @param response

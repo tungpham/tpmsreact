@@ -59,11 +59,11 @@ export class CallControl extends React.PureComponent {
         Twilio.Device.connect({ To: newProps.callCenter.to, From: newProps.callCenter.from });
         self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true });
         const callStatusListen = setInterval(() => {
-          if (typeof Twilio.Device.activeConnection() == 'undefined') {
-            clearInterval(callStatusListen);
+          if (typeof Twilio.Device.activeConnection() === 'undefined') {
+            return clearInterval(callStatusListen);
           }
           if (Twilio.Device.activeConnection().status() === 'open') {
-            if (!self.state.answered) self.setState({ answered: true });
+            if (!self.state.answered) return self.setState({ answered: true });
           }
         }, 1000);
       });

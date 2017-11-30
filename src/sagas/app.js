@@ -1,5 +1,4 @@
 import { put, call, takeLatest } from 'redux-saga/effects';
-import { push } from 'react-router';
 import {
   GET_ALL_PHONE_NUMBER,
   GET_CALL_LOGS,
@@ -109,13 +108,12 @@ function* getCallLogsHandle(action) {
       response.response.records.map(r => {
         const phoneNumber = (r.to !== action.payload.phoneNumber) ? r.to : r.from;
         if (typeof records[phoneNumber] === 'undefined') {
-          records[phoneNumber] = {
+          return records[phoneNumber] = {
             phone_number: phoneNumber,
             items: [r]
           }
-        } else {
-          records[phoneNumber].items.push(r);
         }
+        return records[phoneNumber].items.push(r);
       });
 
       response.response.records = [];

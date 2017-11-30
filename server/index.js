@@ -46,6 +46,8 @@ app.use('/stream', (req, res, next) => {
   }).pipe(res);
 });
 
+app.get('/firebase-messaging-sw.js', (req, res) => res.sendFile('firebase-messaging-sw.js', { root: __dirname }));
+
 
 app.post('/call-token', (req, res) => {
   const capability = new ClientCapability({

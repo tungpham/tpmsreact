@@ -130,7 +130,7 @@ function AppReducer(state = initialState, action) {
 
     case types.RECEIVED_NEW_MESSAGE:
       const numbers = state.get('numbers').toJS();
-      const toNumber = numbers.find(number => number.phoneNumber === action.payload.from);
+      const toNumber = numbers.find(number => number.phoneNumber === action.payload.to);
       const conversationIndex = conversationRecordIndexByPhoneNumber(state.getIn(['conversations', 'records']).toJS(), action.payload.from);
       if (toNumber && conversationIndex > -1) {
         return state.updateIn(['numbers', numbers.indexOf(toNumber), 'totalUnreadMessage'], total => total + 1)
