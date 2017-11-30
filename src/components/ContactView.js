@@ -21,6 +21,7 @@ export class ContactView extends React.PureComponent {
     this.cancelEdit = this.cancelEdit.bind(this);
     this.deleteContact = this.deleteContact.bind(this);
     this.makeCall = this.makeCall.bind(this);
+    this.makeConversation = this.makeConversation.bind(this);
   }
 
   submitContact(values) {
@@ -58,9 +59,13 @@ export class ContactView extends React.PureComponent {
 
   makeCall() {
     this.props.dispatch(makeCall({
-      from: this.props.number,
+      from: this.props.from,
       to: this.props.contact.phoneNumber,
     }));
+  }
+
+  makeConversation() {
+    this.props.history.push(`/dashboard/${this.props.from}/conversation/${this.props.contact.phoneNumber}`);
   }
 
   render() {
@@ -117,7 +122,7 @@ export class ContactView extends React.PureComponent {
                 <div className="col-md-12 call-view text-center">
                   <div className="buttons-border-row justify-content-center">
                     <i className="fa fa-phone icon" onClick={this.makeCall} />
-                    <i className="fa fa-comment icon" />
+                    <i className="fa fa-comment icon" onClick={this.makeConversation} />
                     <i className="fa fa-pencil icon" onClick={this.editContact} />
                     <i className="fa fa-trash icon" onClick={this.deleteContact} />
                   </div>

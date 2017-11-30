@@ -15,6 +15,7 @@ import {
   getCallTokenSuccess,
 } from '../actions/app';
 import Fetcher from '../core/fetcher';
+import Notification from '../core/notification';
 
 
 /**
@@ -185,6 +186,9 @@ function* sendMessageHandle(action) {
   try {
     const response = yield call(fetchSendMessage, action);
     if (response.status >= 200 && response.status <= 300) {
+      if (response.response.length === 0) {
+        return Notification.warning('Send message failed! Please try later or contact us.');
+      }
       yield put(sendMessageSuccessfully(response.response[0]));
       action.payload.history.push(`/dashboard/${action.payload.from}/conversation/${action.payload.to}`);
     }

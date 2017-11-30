@@ -1,11 +1,30 @@
 import React from 'react';
 import { Row } from 'reactstrap';
 import moment from 'moment';
+import { withRouter } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { makeSelectRecord } from '../selectors/app';
+import { makeCall } from '../actions/app';
 
 class CallView extends React.PureComponent {
+
+  constructor(props) {
+    super(props);
+    this.makeCall = this.makeCall.bind(this);
+    this.makeConversation = this.makeConversation.bind(this);
+  }
+
+  makeCall() {
+    this.props.dispatch(makeCall({
+      from: this.props.from,
+      to: this.props.record.phone_number,
+    }));
+  }
+
+  makeConversation() {
+    this.props.history.push(`/dashboard/${this.props.from}/conversation/${this.props.record.phone_number}`);
+  }
 
   render () {
     return (
@@ -38,10 +57,10 @@ class CallView extends React.PureComponent {
               </div>
             </Row>
             <Row className="buttons-border-row justify-content-center">
-              <i className="fa fa-phone icon" onClick={this.props.redirectToNewCall} />
+              <i className="fa fa-phone icon" onClick={this.makeCall} />
               <i className="fa fa-bars icon" />
-              <i className="fa fa-comment icon" onClick={this.props.redirectToNewConversation} />
-              <i className="fa fa-trash icon" onClick={this.props.redirectToNewConversation} />
+              <i className="fa fa-comment icon" onClick={this.makeConversation} />
+              <i className="fa fa-trash icon" onClick={() => {}} />
             </Row>
           </div> : ''
         }
@@ -60,4 +79,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CallView);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(CallView));

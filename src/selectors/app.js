@@ -29,7 +29,7 @@ const makeSelectConversationMessages = () => (state, props) => {
     return [];
   }
   const record = state.get('app').toJS().conversations.records.find(chat => chat.phone_number === props.match.params.conversation);
-  return record.message_items || [];
+  return (record) ? record.message_items : [] || [];
 };
 
 const makeSelectRecord = () => (state, props) => {
