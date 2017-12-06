@@ -42,7 +42,18 @@ class Dashboard extends React.PureComponent {
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
     });
     const messaging = firebase.messaging();
-    messaging.getToken().then(token => Fetcher.updateFireBaseToken(this.props.auth.user.id, token));
+    messaging.getToken().then(token => {
+      if (token) {
+        Fetcher.updateFireBaseToken(this.props.auth.user.id, token)
+      } else {
+        messaging.requestPermission().then(function() {
+          console.log('Notification permission granted.');
+          location.reload();
+        }).catch(function(err) {
+          console.log('Unable to get permission to notify.', err);
+        });
+      }
+    }).catch(err => console.log('An error occurred while retrieving token. ', err));
     messaging.onMessage(function (payload) {
       const message = {
         body: JSON.parse(payload.notification.body).body,

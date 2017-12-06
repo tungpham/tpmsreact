@@ -99,6 +99,7 @@ class MessagesView extends React.PureComponent {
           onMessage={this.props.onMessage}
           value={this.state.message}
           onSubmit={this.sendMessage}
+          onClick={this.sendMessage}
           onKeyPress={this.onKeyPress}
           onChange={this.setMessage}
         />
