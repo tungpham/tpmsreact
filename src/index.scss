@@ -413,10 +413,15 @@ body {
         padding: 2em;
         .call-icon {
             font-size: 2.3em;
-            color: $brand-primary;
-            border: 5px solid $brand-primary;
-            padding: 0.5em;
             border-radius: 50%;
+            border: 5px solid #178f46;
+            color: #178f46;
+            padding: 0.47em;
+            padding-left: 0.55em;
+            cursor: pointer;
+            width: 80px;
+            heigh: 80px;
+            margin: 0.5em;
         }
     }
 

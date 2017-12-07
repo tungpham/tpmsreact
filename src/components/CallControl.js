@@ -5,7 +5,7 @@ import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { makeSelectUserProfile } from '../selectors/user';
 import { makeSelectCallCenter, makeSelectCallTokens } from '../selectors/app';
-// import Fetcher from '../core/fetcher';
+import Notification from '../core/notification';
 import { closeCall, getCallLogs } from '../actions/app';
 import { Numbers } from '../components/DialPad';
 import CallTimer from '../components/CallTimer';
@@ -53,11 +53,17 @@ export class CallControl extends React.PureComponent {
   componentWillReceiveProps(newProps) {
     const self = this;
     if (newProps.callCenter.calling && !this.props.callCenter.calling && this.props.auth) {
+      if (!newProps.callCenter.to) {
+        Notification.warning('Number invalid!')
+        return self.props.dispatch(closeCall());
+      };
       self.setState({ log: 'Connecting...'});
       Twilio.Device.setup(this.props.callTokens[newProps.callCenter.from], { enableRingingState: true });
       Twilio.Device.ready(function() {
-        Twilio.Device.connect({ To: newProps.callCenter.to, From: newProps.callCenter.from });
-        self.setState({ log: 'Calling ' + newProps.callCenter.to, onPhone: true });
+        let toNumber = newProps.callCenter.to;
+        toNumber = toNumber.replace('client:', ''); // Make valid number if it is the client number.
+        Twilio.Device.connect({ To: toNumber, From: newProps.callCenter.from });
+        self.setState({ log: 'Calling ' + toNumber, onPhone: true });
         const callStatusListen = setInterval(() => {
           if (typeof Twilio.Device.activeConnection() === 'undefined') {
             return clearInterval(callStatusListen);
