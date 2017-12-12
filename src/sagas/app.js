@@ -28,7 +28,7 @@ function fetchAllPhoneNumber(action) {
 }
 
 function fetchCallTokenByNumber(action, callback) {
-  Fetcher.post(`/api/v1/call/token`, {...action, application_sid: process.env.TWILIO_TWIML_APP_ID}, false).then(response => callback(response.response));
+  Fetcher.post(`/api/v1/call/token`, {...action}, false).then(response => callback(response.response));
 }
 
 function* getAllPhoneNumberHandle(action) {
@@ -40,6 +40,7 @@ function* getAllPhoneNumberHandle(action) {
       numbers.map(number => fetchCallTokenByNumber({
         client: number.phoneNumber,
         account_sid: action.payload.auth.userMetadata.sid,
+        application_sid: action.payload.auth.user.applicationSid,
         auth_token: action.payload.auth.userMetadata.auth_token },
         token => action.payload.dispatch(getCallTokenSuccess({ phoneNumber: number.phoneNumber, token }))));
 
