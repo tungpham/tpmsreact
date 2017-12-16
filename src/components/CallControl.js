@@ -58,11 +58,12 @@ export class CallControl extends React.PureComponent {
         return self.props.dispatch(closeCall());
       };
       self.setState({ log: 'Connecting...'});
+      console.log(newProps.callCenter.from);
       Twilio.Device.setup(this.props.callTokens[newProps.callCenter.from], { enableRingingState: true });
       Twilio.Device.ready(function() {
         let toNumber = newProps.callCenter.to;
         toNumber = toNumber.replace('client:', ''); // Make valid number if it is the client number.
-        Twilio.Device.connect({ To: toNumber, From: newProps.callCenter.from });
+        Twilio.Device.connect({ To: toNumber, From: `client:${newProps.callCenter.from}` });
         self.setState({ log: 'Calling ' + toNumber, onPhone: true });
         const callStatusListen = setInterval(() => {
           if (typeof Twilio.Device.activeConnection() === 'undefined') {
